@@ -162,7 +162,14 @@ class Panel
                 );
             }
 
-            $this->resolver(call_user_func([$controllerClass, $method]));
+			/**
+			 * @var ResponseInterface $actionResponse
+			 */
+			$actionResponse = call_user_func([$controllerClass, $method]);
+			if($actionResponse->hasHeader('Location')) {
+				$actionResponse = $actionResponse->withStatus(302);
+			}
+            $this->resolver($actionResponse);
         }
 
         $this->resolver($response->withStatus(404));
