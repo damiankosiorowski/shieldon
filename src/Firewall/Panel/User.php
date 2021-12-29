@@ -100,7 +100,7 @@ class User extends BaseController
             Event::doDispatch('user_login');
 
             // Redirect to overview page if logged in successfully.
-            return get_response()->withHeader('Location', $this->url('home/overview'));
+            return get_response()->withHeader('Location', $this->url('home/overview'))->withStatus(302);
         }
 
         // Start to prompt a login form is not logged.
