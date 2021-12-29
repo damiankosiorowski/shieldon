@@ -98,7 +98,20 @@ class CakePhp
             $httpResolver = new HttpResolver();
             $httpResolver($response);
         }
+        
+        $cakeResponse = new \Cake\Http\Response();
+        
+        /*
+		$cakeResponse = $cakeResponse->withBody($response->getBody())
+			->withStatus($response->getStatusCode(), $response->getReasonPhrase())
+			->withProtocolVersion($response->getProtocolVersion());
 
-        return $next($request, $response);
+		$headers = $response->getHeaders();
+		foreach($headers as $key => $value) {
+			$cakeResponse = $cakeResponse->withHeader($key, $value);
+		}
+        */
+
+        return $next($request, $cakeResponse);
     }
 }
