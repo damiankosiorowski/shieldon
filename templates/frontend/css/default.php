@@ -21,6 +21,10 @@ $css = '
     body {
         background-color: ' . $ui['bg_color'] . ';
         background-image: url(' . $ui['background_image'] . ');
+        background-repeat: no-repeat;
+        background-size: 80% 15%;
+        background-position: center 10%;
+        background-blend-mode: difference;
         font-family: "-apple-system", "BlinkMacSystemFont", "Helvetica Neue", "Helvetica", "Arial", "Segoe UI", "Oxygen", "Ubuntu", "Cantarell", "Open Sans", sans-serif;
     }
 
