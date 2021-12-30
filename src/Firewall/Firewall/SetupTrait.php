@@ -548,6 +548,9 @@ trait SetupTrait
             }
         });
 
+	$ui = $this->getOption('dialog_ui');
+	$this->kernel->setDialog($this->getOption('dialog_ui'));
+
         $dialogInfo = $this->getOption('dialog_info_disclosure');
 
         $this->kernel->setProperty('display_online_info', $dialogInfo['online_user_amount']);
