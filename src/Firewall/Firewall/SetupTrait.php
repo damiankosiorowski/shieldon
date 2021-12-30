@@ -6,9 +6,9 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- * 
+ *
  * php version 7.1.0
- * 
+ *
  * @category  Web-security
  * @package   Shieldon
  * @author    Terry Lin <contact@terryl.in>
@@ -84,7 +84,7 @@ trait SetupTrait
     abstract public function add(MiddlewareInterface $middleware): void;
 
     /**
-     * Are database tables created? 
+     * Are database tables created?
      *
      * @return bool
      */
@@ -92,7 +92,7 @@ trait SetupTrait
 
     /**
      * Are database tables created?
-     * 
+     *
      * @param bool $create Is create the checkpoint file, or not.
      *
      * @return void
@@ -209,7 +209,7 @@ trait SetupTrait
 
     /**
      * Components
-     * 
+     *
      * (1) Ip
      * (2) Rdns
      * (3) Header
@@ -249,7 +249,7 @@ trait SetupTrait
 
     /**
      * Captcha modules.
-     * 
+     *
      * (1) Google ReCaptcha
      * (2) Simple image captcha.
      *
@@ -271,9 +271,9 @@ trait SetupTrait
                 $this->kernel->setCaptcha(
                     CaptchaFactory::getInstance(
                         // The ID of the captcha module in the configuration.
-                        $captcha, 
+                        $captcha,
                         // The settings of the captcha module in the configuration.
-                        $setting    
+                        $setting
                     )
                 );
             }
@@ -302,7 +302,7 @@ trait SetupTrait
 
     /**
      * Apply the denied list and the allowed list to Ip Component.
-     * 
+     *
      * @return void
      */
     protected function setupAndApplyComponentIpManager(): void
@@ -328,10 +328,10 @@ trait SetupTrait
             }
         }
 
-        /** @scrutinizer ignore-call */ 
+        /** @scrutinizer ignore-call */
         $this->kernel->component['Ip']->setAllowedItems($allowedList);
 
-        /** @scrutinizer ignore-call */ 
+        /** @scrutinizer ignore-call */
         $this->kernel->component['Ip']->setDeniedItems($deniedList);
     }
 
@@ -378,8 +378,8 @@ trait SetupTrait
         $this->kernel->setProperty(
             'deny_attempt_enable',
             [
-                'data_circle'     => $setting['data_circle']['enable'],     // false   
-                'system_firewall' => $setting['system_firewall']['enable'], // false   
+                'data_circle'     => $setting['data_circle']['enable'],     // false
+                'system_firewall' => $setting['system_firewall']['enable'], // false
             ]
         );
 
@@ -397,12 +397,12 @@ trait SetupTrait
         $this->kernel->setProperty(
             'record_attempt_detection_period',
             $recordAttempt['detection_period'] // 5
-        ); 
+        );
 
         $this->kernel->setProperty(
             'reset_attempt_counter',
             $recordAttempt['time_to_reset'] // 1800
-        );  
+        );
     }
 
     /**
@@ -445,7 +445,7 @@ trait SetupTrait
      *
      * @return void
      */
-    protected function setupCronJob(): void 
+    protected function setupCronJob(): void
     {
         $cronjobSetting = $this->getOption('reset_circle', 'cronjob');
 
@@ -478,7 +478,7 @@ trait SetupTrait
                 $this->updateConfig();
 
                 // Remove all logs.
-                /** @scrutinizer ignore-call */ 
+                /** @scrutinizer ignore-call */
                 $this->kernel->driver->rebuild();
             }
         }
@@ -499,6 +499,22 @@ trait SetupTrait
             $this->kernel->setExcludedList($list);
         }
     }
+
+	/**
+	 * Set the query params that want to be excluded from Shieldon protection.
+	 *
+	 * @return void
+	 */
+	protected function setupExcludedQueryParams(): void
+	{
+		$excludedQueryParams = $this->getOption('excluded_query_params');
+
+		if (!empty($excludedQueryParams)) {
+			$list = array_values($excludedQueryParams);
+
+			$this->kernel->setExcludedQueryParamsList($list);
+		}
+	}
 
     /**
      * WWW-Athentication.
