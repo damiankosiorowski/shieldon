@@ -6,9 +6,9 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- * 
+ *
  * php version 7.1.0
- * 
+ *
  * @category  Web-security
  * @package   Shieldon
  * @author    Terry Lin <contact@terryl.in>
@@ -56,7 +56,7 @@ class Setting extends BaseController
     /**
      * Constructor
      */
-    public function __construct() 
+    public function __construct()
     {
         parent::__construct();
     }
@@ -203,10 +203,43 @@ class Setting extends BaseController
 
             $this->saveConfig();
         }
+		elseif (isset($postParams['query_params'])) {
+
+			$queryParams = $postParams['query_params'];
+			$action = $postParams['action'];
+			$order = (int) $postParams['order'];
+
+			$excludedQueryParams = (array) $this->getConfig('excluded_query_params');
+
+			if ('remove-qp' === $action) {
+				unset($excludedQueryParams[$order]);
+
+				$excludedQueryParams = array_values($excludedQueryParams);
+			} elseif ('add-qp' === $action) {
+				$queryParams = explode(',', $queryParams);
+				array_walk($queryParams, function(&$item) {
+					$item = trim($item);
+				});
+				array_push(
+					$excludedQueryParams,
+					$queryParams
+				);
+
+			}
+
+			$this->setConfig('excluded_query_params', $excludedQueryParams);
+
+			unset_superglobal('query_params', 'post');
+			unset_superglobal('action', 'post');
+			unset_superglobal('order', 'post');
+
+			$this->saveConfig();
+		}
 
         $data = [];
 
         $data['exclusion_list'] = $this->getConfig('excluded_urls');
+        $data['exclusion_query_params_list'] = $this->getConfig('excluded_query_params');
 
         $data['title'] = __('panel', 'title_exclusion_list', 'Exclusion');
 
