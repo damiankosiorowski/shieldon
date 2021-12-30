@@ -112,11 +112,11 @@ class Firewall
 
     /**
      * Constructor.
-     * 
+     *
      * @param ServerRequestInterface|null $request  A PSR-7 server request.
      * @param ResponseInterface|null      $response A PSR-7 server response.
      */
-    public function __construct(?ServerRequestInterface $request = null, ?ResponseInterface $response = null) 
+    public function __construct(?ServerRequestInterface $request = null, ?ResponseInterface $response = null)
     {
         Container::set('firewall', $this);
 
@@ -162,6 +162,7 @@ class Firewall
             'LimitSession',
             'CronJob',
             'ExcludedUrls',
+			'ExcludedQueryParams',
             'XssProtection',
             'PageAuthentication',
             'DialogUserInterface',
@@ -186,7 +187,7 @@ class Firewall
      *
      * @param string $source The path.
      * @param string $type   The type.
-     * 
+     *
      * @return void
      */
     public function configure(string $source, string $type = 'json'): void
