@@ -231,7 +231,7 @@ class Kernel
 
     /**
      * The result passed from filters, compoents, etc.
-     * 
+     *
      * DENY    : 0
      * ALLOW   : 1
      * CAPTCHA : 2
@@ -268,9 +268,16 @@ class Kernel
      */
     protected $excludedUrls = [];
 
+	/**
+	 * Sets of query params that are excluded from Shieldon's protection.
+	 *
+	 * @var array
+	 */
+	protected $excludedQueryParams = [];
+
     /**
      * Strict mode.
-     * 
+     *
      * Set by `strictMode()` only. The default value of this propertry is undefined.
      *
      * @var bool|null
@@ -364,6 +371,14 @@ class Kernel
     {
         $this->assertDriver();
 
+		// Ignore the excluded query params.
+		foreach ($this->excludedQueryParams as $queryParamsSet) {
+			$currentParams = array_keys($this->getCurrentQueryParams());
+			if (!array_diff($queryParamsSet, $currentParams)) {
+				return $this->result = self::RESPONSE_ALLOW;
+			}
+		}
+
         // Ignore the excluded urls.
         foreach ($this->excludedUrls as $url) {
             if (strpos($this->getCurrentUrl(), $url) === 0) {
@@ -380,11 +395,11 @@ class Kernel
 
         if ($result !== self::RESPONSE_ALLOW) {
 
-            // Current session did not pass the CAPTCHA, it is still stuck in 
+            // Current session did not pass the CAPTCHA, it is still stuck in
             // CAPTCHA page.
             $actionCode = self::LOG_CAPTCHA;
 
-            // If current session's respone code is RESPONSE_DENY, record it as 
+            // If current session's respone code is RESPONSE_DENY, record it as
             // `blacklist_count` in our logs.
             // It is stuck in warning page, not CAPTCHA.
             if ($result === self::RESPONSE_DENY) {
@@ -425,7 +440,7 @@ class Kernel
         if ('' === $ip) {
             $ip = $this->ip;
         }
- 
+
         $this->action(
             self::ACTION_DENY,
             self::REASON_MANUAL_BAN,
@@ -473,7 +488,7 @@ class Kernel
 
     /**
      * Set the property settings.
-     * 
+     *
      * @param array $settings The settings.
      *
      * @return void
@@ -490,7 +505,7 @@ class Kernel
     /**
      * Strict mode.
      * This option will take effects to all components.
-     * 
+     *
      * @param bool $bool Set true to enble strict mode, false to disable it overwise.
      *
      * @return void
@@ -516,7 +531,7 @@ class Kernel
      * Add a path into the excluded list.
      *
      * @param string $uriPath The path component of a URI.
-     * 
+     *
      * @return void
      */
     public function exclude(string $uriPath): void
@@ -537,6 +552,18 @@ class Kernel
     {
         $this->excludedUrls = $urls;
     }
+
+	/**
+	 * Set the query params you want them excluded them from protection.
+	 *
+	 * @param array $queryParams The list of query params want to be excluded.
+	 *
+	 * @return void
+	 */
+	public function setExcludedQueryParamsList(array $queryParams = []): void
+	{
+		$this->excludedQueryParams = $queryParams;
+	}
 
     /**
      * Set a closure function.
@@ -561,10 +588,20 @@ class Kernel
         return get_request()->getUri()->getPath();
     }
 
+	/**
+	 * Get current visior's query params
+	 *
+	 * @return array
+	 */
+	public function getCurrentQueryParams(): array
+	{
+		return get_request()->getQueryParams();
+	}
+
     /**
-     * Displayed on Firewall Panel, telling you current what type of 
+     * Displayed on Firewall Panel, telling you current what type of
      * configuration is used.
-     * 
+     *
      * @param string $type The type of configuration.
      *                     accepted value: demo | managed | config
      *
@@ -624,7 +661,7 @@ class Kernel
      * @param int    $actionCode The action code. - 0: deny, 1: allow, 9: unban.
      * @param string $reasonCode The response code.
      * @param string $assignIp   The IP address.
-     * 
+     *
      * @return void
      */
     protected function action(int $actionCode, int $reasonCode, string $assignIp = ''): void
@@ -633,7 +670,7 @@ class Kernel
         $rdns = $this->rdns;
         $now = time();
         $logData = [];
-    
+
         if ('' !== $assignIp) {
             $ip = $assignIp;
             $rdns = gethostbyaddr($ip);
@@ -679,7 +716,7 @@ class Kernel
         }
 
         $logData = [];
- 
+
         $logData['ip'] = $ip ?: $this->getIp();
         $logData['session_id'] = get_session_instance()->getId();
         $logData['action_code'] = $actionCode;
@@ -692,13 +729,13 @@ class Kernel
      * Get a class name without namespace string.
      *
      * @param object $instance Class
-     * 
+     *
      * @return string
      */
     protected function getClassName($instance): string
     {
         $class = get_class($instance);
-        return substr($class, strrpos($class, '\\') + 1); 
+        return substr($class, strrpos($class, '\\') + 1);
     }
 
     /**
