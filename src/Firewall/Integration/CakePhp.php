@@ -6,13 +6,14 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- * 
+ *
  */
 
 declare(strict_types=1);
 
 namespace Shieldon\Firewall\Integration;
 
+use Cake\Log\Log;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Shieldon\Firewall\Firewall;
@@ -49,7 +50,7 @@ class CakePhp
      *
      * @param string $storage  See property `storage` explanation.
      * @param string $panelUri See property `panelUri` explanation.
-     * 
+     *
      * @return void
      */
     public function __construct(string $storage = '', string $panelUri = '')
@@ -79,7 +80,22 @@ class CakePhp
      */
     public function __invoke(Request $request, Response $response, $next): Response
     {
-        $firewall = new Firewall($request);
+		if($response instanceof \Cake\Http\Response) {
+			$cookies = $response->getCookies();
+			foreach($cookies as $cookie) {
+				setcookie(
+					$cookie['name'],
+					$cookie['value'],
+					$cookie['expire'],
+					$cookie['path'],
+					$cookie['domain'],
+					$cookie['secure'],
+					$cookie['httpOnly']
+				);
+			}
+		}
+
+        $firewall = new Firewall($request, $response, false);
         $firewall->configure($this->storage);
         $firewall->controlPanel($this->panelUri);
 
@@ -98,10 +114,9 @@ class CakePhp
             $httpResolver = new HttpResolver();
             $httpResolver($response);
         }
-        
+
         $cakeResponse = new \Cake\Http\Response();
-        
-        /*
+
 		$cakeResponse = $cakeResponse->withBody($response->getBody())
 			->withStatus($response->getStatusCode(), $response->getReasonPhrase())
 			->withProtocolVersion($response->getProtocolVersion());
@@ -110,7 +125,7 @@ class CakePhp
 		foreach($headers as $key => $value) {
 			$cakeResponse = $cakeResponse->withHeader($key, $value);
 		}
-        */
+
 
         return $next($request, $cakeResponse);
     }
