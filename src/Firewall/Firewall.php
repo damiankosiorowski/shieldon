@@ -115,12 +115,13 @@ class Firewall
      *
      * @param ServerRequestInterface|null $request  A PSR-7 server request.
      * @param ResponseInterface|null      $response A PSR-7 server response.
+     * @param bool                        $psr7     A PSR-7 mode for cookies.
      */
-    public function __construct(?ServerRequestInterface $request = null, ?ResponseInterface $response = null)
+    public function __construct(?ServerRequestInterface $request = null, ?ResponseInterface $response = null, bool $psr7 = true)
     {
         Container::set('firewall', $this);
 
-        $this->kernel = new Kernel($request, $response);
+        $this->kernel = new Kernel($request, $response, $psr7);
     }
 
     /**
