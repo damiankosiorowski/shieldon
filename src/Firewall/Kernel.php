@@ -312,13 +312,16 @@ class Kernel
      *
      * @param ServerRequestInterface|null $request  A PSR-7 server request.
      * @param ResponseInterface|null      $response A PSR-7 server response.
+     * @param bool                        $psr7     A PSR-7 mode for cookies.
      *
      * @return void
      */
-    public function __construct(?ServerRequestInterface $request = null, ?ResponseInterface $response = null)
+    public function __construct(?ServerRequestInterface $request = null, ?ResponseInterface $response = null, bool $psr7 = true)
     {
         // Load helper functions. This is the must and first.
         new Helpers();
+	    
+	$this->psr7 = $psr7;
 
         if (is_null($request)) {
             $request = HttpFactory::createRequest();
